@@ -1,22 +1,24 @@
+from django.conf import settings
 from rest_framework import serializers
 from products.models import Product
+from products.models import ProductCategory
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer):
 
-    photo_urls = serializers.SerializerMethodField()
+    product_image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
-        fields = ['name', 'description', 'slug', 'photo_urls']
+        fields = ['id', 'name', 'description', 'price', 'slug', 'product_image_url']
 
-    def get_photo_urls(self, obj):
-        request = self.context.get('request')
-        photos = obj.productimage_set.all()
-        return [
-            request.build_absolute_uri(photo.url)
-            for photo in photos
-        ]
+    def get_product_image_url(self, obj):
+        return f'{settings.SITE_URL}{obj.main_image.image.url}'
 
+class ProductCategorySerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = ProductCategory
+        fields = ['id', 'name']
 
 
